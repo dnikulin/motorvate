@@ -22,7 +22,41 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import sys
+from link import IntegerRegister, ToggleRegister, MultiIntegerRegister, FloatRegister
+from tools import report
 
-def report(line):
-    print >> sys.stderr, ('motorvate: %s' % line)
+from time import sleep
+
+class Counter(object):
+    def __init__(self, link, aStop, aSwitch, aValue, aTime):
+        # Create an IntegerRegister for each address
+        self.rStop   = ToggleRegister(link, aStop)
+        self.rSwitch = ToggleRegister(link, aSwitch)
+        self.rValue  =  FloatRegister(link, aValue)
+        self.rTime   =  FloatRegister(link, aTime)
+
+    def stop(self):
+        self.rSwitch.write(False)
+
+    def start(self):
+        self.rSwitch.write(True)
+
+    def isDone(self):
+        return self.rStop.read()
+
+    def setTime(self, time_ms):
+        self.rTime.write(float(int(time_ms)))
+
+    def getCount(self):
+        return round(self.rValue.read())
+
+    def measure(self, time_ms):
+        self.stop()
+        self.setTime(time_ms)
+        self.start()
+        while not self.isDone():
+            sleep(0.1)
+        count = self.getCount()
+        self.stop()
+        self.setTime(0)
+        return count
