@@ -28,15 +28,15 @@ from tools import report
 from time import sleep
 
 class Counters(object):
-    def __init__(self, link, aStop, aSwitch, aTime, aValues):
-        report("Counters(aStop=%s, aSwitch=%s, aTime=%s, aValues=%s)" %
-               (repr(aStop), repr(aSwitch), repr(aTime), repr(aValues)))
+    def __init__(self, link, aSwitch, aStops, aTimes, aValues):
+        report("Counters(aSwitch=%s, aStops=%s, aTimes=%s, aValues=%s)" %
+               (repr(aSwitch), repr(aStops), repr(aTimes), repr(aValues)))
 
-        # Create registers for each control address
-        self.rStop   = ToggleRegister(link, aStop)
+        # Create toggle registers for each control address.
         self.rSwitch = ToggleRegister(link, aSwitch)
-        self.rTime   =  FloatRegister(link, aTime)
-        # Create float registers for each value address
+        self.rStops  = [ToggleRegister(link, aStop) for aStop in aStops]
+        # Create float registers for each time and value address.
+        self.rTimes  = [FloatRegister(link, aTime) for aTime in aTimes]
         self.rValues = [FloatRegister(link, aValue) for aValue in aValues]
 
     def stop(self):
@@ -48,13 +48,17 @@ class Counters(object):
         self.rSwitch.write(True)
 
     def isDone(self):
-        done = self.rStop.read()
-        report("Counters.isDone() -> %s" % repr(done))
-        return done
+        for idx, rStop in enumerate(self.rStops):
+            done = rStop.read()
+            report("Counters.isDone(%d) -> %s" % (idx, repr(done)))
+            if not done:
+                return False
+        return True
 
     def setTime(self, time_ms):
         report("Counters.setTime(%s)" % repr(time_ms))
-        self.rTime.write(float(int(time_ms)))
+        for rTime in self.rTrimes:
+            rTime.write(float(int(time_ms)))
 
     def getCounts(self):
         counts = [round(rValue.read()) for rValue in self.rValues]
