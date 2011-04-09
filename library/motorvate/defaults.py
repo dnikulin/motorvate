@@ -22,4 +22,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from defaults import makeLink, makeWorld
+from link import ControlLink
+from world import World
+
+from pymodbus.constants import Defaults
+
+import os
+
+host = os.getenv('XRD_HOST', 'localhost')
+port = int(os.getenv('XRD_PORT', str(Defaults.Port)))
+
+def makeLink():
+    return ControlLink(host, port)
+
+def makeWorld():
+    return World(makeLink())
