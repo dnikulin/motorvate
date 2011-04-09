@@ -61,15 +61,22 @@ class IntegerRegister(object):
         return self.link.write(self.offset, value)
 
 class ToggleRegister(object):
-    def __init__(self, link, offset):
+    def __init__(self, link, (offset, bit)):
         self.link = link
         self.offset = long(offset)
+        self.bit = int(bit)
+        self.mask = int(1) << int(bit)
 
     def read(self):
-        return self.link.read(self.offset) != 0
+        word = int(self.link.read(self.offset))
+        bit = (word >> self.bit) & int(1)
+        return (bit != 0)
 
     def write(self, state):
-        return self.link.write(self.offset, int(state))
+        word = int(self.link.read(self.offset))
+        word &= ~self.mask
+        if state: word |= self.mask
+        return self.link.write(self.offset, word)
 
 class MultiIntegerRegister(object):
     def __init__(self, link, offsets, eachWidth):
