@@ -35,15 +35,44 @@ from pymodbus.register_write_message import WriteSingleRegisterRequest
 class ControlLink(object):
     def __init__(self, host, port=Defaults.Port):
         self.conn = ModbusTcpClient(host, port)
-        self.conn.connect()
+        if not self.conn.connect():
+            raise RuntimeError('Could not connect to host %s port %d' % (host, port))
 
     def read(self, offset):
-        req = ReadInputRegistersRequest(offset)
-        return long(self.conn.execute(req).value)
+        # Adjust offset due to weirdness.
+        offset -= 40000
+
+        # Create request.
+        assert offset is not None
+        assert offset >= 0
+        req = ReadInputRegistersRequest(offset, 1)
+        assert req is not None
+
+        # Execute and return response.
+        res = self.conn.execute(req)
+        assert res is not None
+
+        # Extract single value from response.
+        values = res.registers
+        assert values is not None
+        assert len(values) == 1
+        return long(values[0])
 
     def write(self, offset, value):
+        # Adjust offset due to weirdness.
+        offset -= 40000
+
+        # Create request.
+        assert offset is not None
+        assert offset >= 0
+        assert value is not None
         req = WriteSingleRegisterRequest(offset, value)
-        nvalue = self.conn.execute(req).value
+
+        # Execute and return response.
+        res = self.conn.execute(req)
+        assert res is not None
+        assert res.value is not None
+        nvalue = res.value
         if nvalue != value:
             report('address %d, wrote %d, returned %d'
                    % (offset, value, nvalue))
@@ -69,8 +98,8 @@ class ToggleRegister(object):
 
     def read(self):
         word = int(self.link.read(self.offset))
-        bit = (word >> self.bit) & int(1)
-        return (bit != 0)
+        state = (word >> self.bit) & int(1)
+        return (state != 0)
 
     def write(self, state):
         word = int(self.link.read(self.offset))

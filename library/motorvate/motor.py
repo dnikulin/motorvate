@@ -29,7 +29,7 @@ from time import sleep
 
 class Motor(object):
     def __init__(self, link, aSwitch, aHome, aHoming, aMove, aMoving, aPos):
-        report("Counters(aSwitch=%s, aHome=%s, aHoming=%s, aMove=%s, aMoving=%s, aPos=%s)" %
+        report("Motor(aSwitch=%s, aHome=%s, aHoming=%s, aMove=%s, aMoving=%s, aPos=%s)" %
                (repr(aSwitch), repr(aHome), repr(aHoming), repr(aMove), repr(aMoving), repr(aPos)))
 
         # Create registers for each control address.
@@ -40,10 +40,6 @@ class Motor(object):
         self.rMoving = ToggleRegister(link, aMoving)
         self.rPos    =  FloatRegister(link, aPos)
 
-        # Clear state.
-        self.rHome.write(False)
-        self.rMove.write(False)
-
     # Homing logic.
 
     def home(self):
@@ -53,14 +49,13 @@ class Motor(object):
         self.rHome.write(True)
 
     def isHoming(self):
-        # Blame Ken for inverted busy logic.
         moving = not self.rHoming.read()
         report("Motor.isHoming() -> %s" % repr(moving))
         return moving
 
     def waitHome(self):
         while self.isHoming():
-            sleep(0.5)
+            sleep(0.1)
         # Clear state.
         self.rHome.write(False)
         self.rMove.write(False)
@@ -85,11 +80,11 @@ class Motor(object):
 
     def waitMove(self):
         while self.isMoving():
-            sleep(0.5)
+            sleep(0.1)
         # Clear state.
         self.rHome.write(False)
         self.rMove.write(False)
 
     def moveNow(self, position):
-        self.move(self, position)
-        self.wait()
+        self.move(position)
+        self.waitMove()

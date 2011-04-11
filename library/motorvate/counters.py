@@ -25,7 +25,7 @@
 from link import ToggleRegister, FloatRegister
 from tools import report
 
-from time import sleep
+from time import time, sleep
 
 class Counters(object):
     def __init__(self, link, aSwitch, aStops, aTimes, aValues):
@@ -57,7 +57,7 @@ class Counters(object):
 
     def setTime(self, time_ms):
         report("Counters.setTime(%s)" % repr(time_ms))
-        for rTime in self.rTrimes:
+        for rTime in self.rTimes:
             rTime.write(float(int(time_ms)))
 
     def getCounts(self):
@@ -67,12 +67,34 @@ class Counters(object):
 
     def measure(self, time_ms):
         report("Counters.measure(%s)" % repr(time_ms))
+
+        # Stop counters if running.
         self.stop()
+
+        # Specify time to count.
         self.setTime(time_ms)
+
+        # Sample real time.
+        t1 = time()
+
+        # Start timer and counters.
         self.start()
+
+        # Wait until time has elapsed.
         while not self.isDone():
-            sleep(0.5)
+            sleep(0.1)
+
+        # Sample real time.
+        t2 = time()
+
+        # Calculate and report real time elapsed.
+        taken_ms = int((t2 - t1) * 1000)
+        report("Counters.measure(%s) took %d ms" % (repr(time_ms), taken_ms))
+
+        # Read out counter values.
         counts = self.getCounts()
+
+        # Stop counters.
         self.stop()
         self.setTime(0)
         return counts

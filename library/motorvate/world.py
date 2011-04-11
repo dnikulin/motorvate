@@ -28,7 +28,8 @@ from relay import Relay
 from analog import Analog
 
 # Base address for relays and counter control.
-RC_BASE   = 42001
+# XXX: This does not match Ken's PDF.
+RC_BASE   = 42000
 
 ANALOGS   = [42013, 42017, 42021, 42025]
 
