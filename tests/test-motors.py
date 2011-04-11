@@ -32,8 +32,8 @@ if __name__ == '__main__':
     world = makeWorld()
     for motor in world.motors:
         print 'Testing motor: %s' % repr(motor)
-        motor.homeNow()
-        motor.moveNow(100)
-        motor.moveNow(200)
-        motor.homeNow()
+        motor.home()
+        motor.move(100)
+        motor.move(200)
+        motor.home()
         print

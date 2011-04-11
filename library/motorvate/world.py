@@ -41,7 +41,7 @@ MOTOR_TH2 = (42006, 42061)
 
 MOTORS = [MOTOR_YS, MOTOR_YA, MOTOR_ZS, MOTOR_TH1, MOTOR_TH2]
 
-COUNTER_TIMES  = [42073, 42075, 42077, 42079]
+COUNTER_TIME   = 42073
 COUNTER_VALUES = [42029, 42031, 42033, 42035]
 
 class World(object):
@@ -53,10 +53,10 @@ class World(object):
         self.analogs = [Analog(link, aValue) for aValue in ANALOGS]
 
         self.counters = Counters(link,
-            (RC_BASE, 8), # 'Start' for all counters.
-            [(RC_BASE, bit) for bit in range(9, 13)], # Stop for each counter.
-            COUNTER_TIMES, # Time for each counter (two words).
-            COUNTER_VALUES, # Value for each counter (two words).
+            (RC_BASE, 8),   # 'Start' for all counters.
+            (RC_BASE, 9),   # 'Stop' indicator for all counters.
+            COUNTER_TIME,   # 'Time' for all counters counter (two words).
+            COUNTER_VALUES, # Value for each counter (two words each).
         )
 
         self.motors = [
