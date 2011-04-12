@@ -71,6 +71,6 @@ class Motor(object):
         self.rMove.write(False)
 
     def isMoving(self):
-        moving = not self.rMoving.read()
+        moving = self.rMoving.read()
         report("Motor.isMoving() -> %s" % repr(moving))
         return moving

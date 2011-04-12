@@ -33,11 +33,11 @@ RC_BASE   = 42000
 
 ANALOGS   = [42013, 42017, 42021, 42025]
 
-MOTOR_YS  = (42002, 42037)
-MOTOR_YA  = (42003, 42043)
-MOTOR_ZS  = (42004, 42049)
-MOTOR_TH1 = (42005, 42055)
-MOTOR_TH2 = (42006, 42061)
+MOTOR_YS  = (42001, 42037)
+MOTOR_YA  = (42002, 42043)
+MOTOR_ZS  = (42003, 42049)
+MOTOR_TH1 = (42004, 42056)
+MOTOR_TH2 = (42005, 42061)
 
 MOTORS = [MOTOR_YS, MOTOR_YA, MOTOR_ZS, MOTOR_TH1, MOTOR_TH2]
 
@@ -64,7 +64,7 @@ class World(object):
                 link,
                 (base, 0), # Enable.
                 (base, 3), # Home.
-                (base, 5), # Homing.
+                (base, 5), # Homed.
                 (base, 1), # Move.
                 (base, 4), # Moving.
                 position   # Set position.

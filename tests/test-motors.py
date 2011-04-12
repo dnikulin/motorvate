@@ -33,7 +33,11 @@ if __name__ == '__main__':
     for motor in world.motors:
         print 'Testing motor: %s' % repr(motor)
         motor.home()
-        motor.move(100)
-        motor.move(200)
-        motor.home()
+        time.sleep(1)
+        motor.move(2000)
+        time.sleep(1)
+        motor.move(3000)
+        time.sleep(1)
+        motor.move(2000)
+        #motor.home()
         print

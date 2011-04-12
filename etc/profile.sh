@@ -1,5 +1,5 @@
 # Edit host if necessary.
-export XRD_HOST=192.168.1.125
+export XRD_HOST=192.168.11.2
 export PYTHONPATH=library
 export PATH="scripts:tests:$PATH"
 
