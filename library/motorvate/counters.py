@@ -22,20 +22,20 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from link import ToggleRegister, FloatRegister
+from link import ToggleRegister, DwordRegister, FloatRegister
 from tools import report
 
 from time import time, sleep
 
 class Counters(object):
-    def __init__(self, link, aSwitch, aStop, aTime, aValues):
-        report("Counters(aSwitch=%s, aStop=%s, aTime=%s, aValues=%s)" %
-               (repr(aSwitch), repr(aStop), repr(aTime), repr(aValues)))
+    def __init__(self, link, aSwitch, aBusy, aTime, aValues):
+        report("Counters(aSwitch=%s, aBusy=%s, aTime=%s, aValues=%s)" %
+               (repr(aSwitch), repr(aBusy), repr(aTime), repr(aValues)))
 
         self.rSwitch = ToggleRegister(link, aSwitch)
-        self.rStop   = ToggleRegister(link, aStop)
+        self.rBusy   = ToggleRegister(link, aBusy)
         self.rTime   =  FloatRegister(link, aTime)
-        self.rValues = [FloatRegister(link, aValue) for aValue in aValues]
+        self.rValues = [DwordRegister(link, aValue) for aValue in aValues]
 
     def stop(self):
         report("Counters.stop()")
@@ -45,9 +45,9 @@ class Counters(object):
         report("Counters.start()")
         self.rSwitch.write(True)
 
-    def isDone(self):
-        done = self.rStop.read()
-        report("Counters.isDone() -> %s" % repr(done))
+    def isBusy(self):
+        done = self.rBusy.read()
+        report("Counters.isBusy() -> %s" % repr(done))
         return done
 
     def setTime(self, time_ms):
@@ -55,7 +55,7 @@ class Counters(object):
         self.rTime.write(float(int(time_ms)))
 
     def getCounts(self):
-        counts = [round(rValue.read()) for rValue in self.rValues]
+        counts = [rValue.read() for rValue in self.rValues]
         report("Counters.getCounts() -> %s" % repr(counts))
         return counts
 
@@ -75,7 +75,7 @@ class Counters(object):
         self.start()
 
         # Wait until time has elapsed.
-        while not self.isDone():
+        while self.isBusy():
             sleep(0.1)
 
         # Sample real time.

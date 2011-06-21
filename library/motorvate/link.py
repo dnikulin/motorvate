@@ -170,3 +170,32 @@ class FloatRegister(object): # 32-bits, taking up two full addresses
             report('address %ld float, wrote %f, returned %f'
                    % (self.offset, value, nvalue))
         return nvalue
+
+class DwordRegister(object): # 32-bits, taking up two full addresses
+    def __init__(self, link, offset):
+        self.link = link
+        self.offset = long(offset)
+
+    def read(self):
+        # Read individual 16 bit unsigned integers
+        lo = self.link.read(self.offset + 0)
+        hi = self.link.read(self.offset + 1)
+        # Pack into bytes as 2 x 16 bit unsigned integers
+        data = struct.pack('>HH', lo, hi)
+        # Unpack from bytes as 1 x 32 bit integer
+        return struct.unpack('>I', data)[0]
+
+    def write(self, value):
+        # Pack into bytes as 1 x 32 bit integer
+        data = struct.pack('>I', value)
+        # Unpack from bytes as 2 x 16 bit unsigned integers
+        lo, hi = struct.unpack('>HH', data)
+        # Write individual 16 bit unsigned integers
+        self.link.write(self.offset + 0, lo)
+        self.link.write(self.offset + 1, hi)
+        # Verify written value
+        nvalue = self.read()
+        if nvalue != value:
+            report('address %ld dword, wrote %ld, returned %ld'
+                   % (self.offset, value, nvalue))
+        return nvalue

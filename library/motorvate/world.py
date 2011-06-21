@@ -28,16 +28,15 @@ from relay import Relay
 from analog import Analog
 
 # Base address for relays and counter control.
-# XXX: This does not match Ken's PDF.
-RC_BASE   = 42000
+RC_BASE   = 42001
 
 ANALOGS   = [42013, 42017, 42021, 42025]
 
-MOTOR_YS  = (42001, 42037)
-MOTOR_YA  = (42002, 42043)
-MOTOR_ZS  = (42003, 42049)
-MOTOR_TH1 = (42004, 42056)
-MOTOR_TH2 = (42005, 42061)
+MOTOR_YS  = (42002, 42037)
+MOTOR_YA  = (42003, 42043)
+MOTOR_ZS  = (42004, 42049)
+MOTOR_TH1 = (42005, 42056)
+MOTOR_TH2 = (42006, 42061)
 
 MOTORS = [MOTOR_YS, MOTOR_YA, MOTOR_ZS, MOTOR_TH1, MOTOR_TH2]
 
@@ -48,7 +47,7 @@ class World(object):
     def __init__(self, link):
         self.link = link
 
-        self.relays = [Relay(link, (RC_BASE, bit)) for bit in range(0, 8)]
+        self.relays = [Relay(link, (RC_BASE, bit)) for bit in [0, 1, 7]]
 
         self.analogs = [Analog(link, aValue) for aValue in ANALOGS]
 
@@ -64,7 +63,6 @@ class World(object):
                 link,
                 (base, 0), # Enable.
                 (base, 3), # Home.
-                (base, 5), # Homed.
                 (base, 1), # Move.
                 (base, 4), # Moving.
                 position   # Set position.

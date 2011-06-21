@@ -28,19 +28,18 @@ from tools import report
 from time import sleep
 
 class Motor(object):
-    def __init__(self, link, aSwitch, aHome, aHomed, aMove, aMoving, aPos):
-        report("Motor(aSwitch=%s, aHome=%s, aHomed=%s, aMove=%s, aMoving=%s, aPos=%s)" %
-               (repr(aSwitch), repr(aHome), repr(aHomed), repr(aMove), repr(aMoving), repr(aPos)))
+    def __init__(self, link, aSwitch, aHome, aMove, aMoving, aPos):
+        report("Motor(aSwitch=%s, aHome=%s, aMove=%s, aMoving=%s, aPos=%s)" %
+               (repr(aSwitch), repr(aHome), repr(aMove), repr(aMoving), repr(aPos)))
 
         # Create registers for each control address.
         self.rSwitch = ToggleRegister(link, aSwitch)
         self.rHome   = ToggleRegister(link, aHome)
-        self.rHomed = ToggleRegister(link, aHomed)
         self.rMove   = ToggleRegister(link, aMove)
         self.rMoving = ToggleRegister(link, aMoving)
         self.rPos    =  FloatRegister(link, aPos)
 
-    # Homed logic.
+    # Homing logic.
 
     def home(self):
         report("Motor.home()")
@@ -48,14 +47,9 @@ class Motor(object):
         self.rHome.write(False)
         self.rMove.write(False)
         self.rHome.write(True)
-        while not self.isHomed():
+        while self.isMoving():
             sleep(0.1)
         self.rHome.write(False)
-
-    def isHomed(self):
-        homed = self.rHomed.read()
-        report("Motor.isHomed() -> %s" % repr(homed))
-        return homed
 
     # Moving logic.
 
